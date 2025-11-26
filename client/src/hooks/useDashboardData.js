@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import api from '../api/client'
+import useAuthStore from '../store/useAuthStore'
 
 const initialState = {
   notifications: [],
@@ -16,6 +17,7 @@ const useDashboardData = (enabled = true) => {
   const [data, setData] = useState(initialState)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+  const user = useAuthStore((state) => state.user)
 
   useEffect(() => {
     if (!enabled) return
@@ -25,12 +27,21 @@ const useDashboardData = (enabled = true) => {
       setLoading(true)
       setError(null)
       try {
-        const [activitiesRes, notificationsRes, campsRes, summaryRes] = await Promise.all([
+        const [activitiesRes, notificationsRes, campsRes] = await Promise.all([
           api.get('/activities?limit=5'),
           api.get('/notifications'),
           api.get('/camps'),
-          api.get('/activities/summary'),
         ])
+
+        let summaryData = []
+        if (user?._id) {
+          try {
+            const summaryRes = await api.get(`/activities/summary?cadet=${user._id}`)
+            summaryData = summaryRes.data.summary || []
+          } catch (err) {
+            console.warn('Failed to fetch summary', err)
+          }
+        }
 
         if (cancelled) return
 
@@ -38,7 +49,7 @@ const useDashboardData = (enabled = true) => {
           activities: activitiesRes.data.activities || [],
           notifications: notificationsRes.data.notifications || [],
           camps: campsRes.data.camps || [],
-          stats: transformStats(summaryRes.data.summary),
+          stats: transformStats(summaryData),
         })
       } catch (err) {
         if (!cancelled) {
@@ -49,12 +60,14 @@ const useDashboardData = (enabled = true) => {
       }
     }
 
-    fetchData()
+    if (user || enabled) {
+      fetchData()
+    }
 
     return () => {
       cancelled = true
     }
-  }, [enabled])
+  }, [enabled, user?._id])
 
   return { ...data, loading, error }
 }

@@ -9,6 +9,7 @@ const campRoutes = require('./routes/campRoutes');
 const attendanceRoutes = require('./routes/attendanceRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 const materialRoutes = require('./routes/materialRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 const app = express();
 
@@ -30,6 +31,7 @@ app.use('/api/camps', campRoutes);
 app.use('/api/attendance', attendanceRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/materials', materialRoutes);
+app.use('/api/admin', adminRoutes);
 
 app.use((err, req, res, _next) => {
   console.error(err);

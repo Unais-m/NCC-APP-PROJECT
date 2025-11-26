@@ -12,7 +12,7 @@ const listCamps = asyncHandler(async (req, res) => {
 });
 
 const applyToCamp = asyncHandler(async (req, res) => {
-  const { campId } = req.params;
+  const campId = req.params.campId;
   const camp = await Camp.findById(campId);
   if (!camp) {
     return res.status(404).json({ message: 'Camp not found' });

@@ -18,8 +18,8 @@ const register = asyncHandler(async (req, res) => {
   const hashed = await bcrypt.hash(password, 10);
   const user = await User.create({ ...req.body, password: hashed, role: role || 'cadet' });
 
-  attachToken(res, user._id);
-  return res.status(201).json({ user });
+  const token = attachToken(res, user._id);
+  return res.status(201).json({ user, token });
 });
 
 const login = asyncHandler(async (req, res) => {
@@ -35,8 +35,8 @@ const login = asyncHandler(async (req, res) => {
     return res.status(401).json({ message: 'Invalid credentials' });
   }
 
-  attachToken(res, user._id);
-  return res.json({ user });
+  const token = attachToken(res, user._id);
+  return res.json({ user, token });
 });
 
 const logout = asyncHandler(async (req, res) => {

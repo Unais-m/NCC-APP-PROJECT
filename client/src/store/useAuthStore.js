@@ -17,8 +17,13 @@ const useAuthStore = create((set, get) => ({
     set({ loading: true })
     try {
       const { data } = await api.get('/auth/me')
+      if (data.user?._id) {
+        localStorage.setItem('userId', data.user._id)
+      }
       set({ user: data.user, error: null })
     } catch (error) {
+      console.warn('Auth bootstrap failed', error)
+      localStorage.removeItem('userId')
       set({ user: null })
     } finally {
       set({ loading: false, bootstrapComplete: true })
@@ -29,6 +34,9 @@ const useAuthStore = create((set, get) => ({
     set({ loading: true, error: null })
     try {
       const { data } = await api.post('/auth/login', payload)
+      if (data.user?._id) {
+        localStorage.setItem('userId', data.user._id)
+      }
       set({ user: data.user })
       return data.user
     } catch (error) {
@@ -44,6 +52,9 @@ const useAuthStore = create((set, get) => ({
     set({ loading: true, error: null })
     try {
       const { data } = await api.post('/auth/signup', payload)
+      if (data.user?._id) {
+        localStorage.setItem('userId', data.user._id)
+      }
       set({ user: data.user })
       return data.user
     } catch (error) {
@@ -59,6 +70,7 @@ const useAuthStore = create((set, get) => ({
     try {
       await api.post('/auth/logout')
     } finally {
+      localStorage.removeItem('userId')
       set({ user: null })
     }
   },

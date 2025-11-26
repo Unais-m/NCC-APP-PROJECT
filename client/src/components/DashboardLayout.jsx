@@ -6,6 +6,7 @@ const navItems = [
   { label: 'Activities', to: '/dashboard/activities' },
   { label: 'Messages', to: '/dashboard/notifications' },
   { label: 'Camps', to: '/dashboard/camps' },
+  { label: 'Profile', to: '/dashboard/profile' },
 ]
 
 const DashboardLayout = () => {

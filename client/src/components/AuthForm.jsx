@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import useAuthStore from '../store/useAuthStore'
 
 const defaultFields = {
@@ -21,6 +21,7 @@ const AuthForm = ({ mode = 'login' }) => {
   const [formData, setFormData] = useState(defaultFields)
   const [message, setMessage] = useState(null)
   const { login, signup, loading, error } = useAuthStore()
+  const navigate = useNavigate()
 
   const isSignup = mode === 'signup'
 
@@ -36,8 +37,10 @@ const AuthForm = ({ mode = 'login' }) => {
       if (isSignup) {
         await signup(formData)
         setMessage('Account created successfully!')
+        setTimeout(() => navigate('/dashboard'), 1000)
       } else {
         await login({ email: formData.email, password: formData.password })
+        navigate('/dashboard')
       }
     } catch (err) {
       setMessage(err.message)

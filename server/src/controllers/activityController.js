@@ -1,5 +1,6 @@
 const Activity = require('../models/Activity');
 const asyncHandler = require('../utils/asyncHandler');
+const mongoose = require('mongoose');
 
 const createActivity = asyncHandler(async (req, res) => {
   const activity = await Activity.create({
@@ -42,13 +43,16 @@ const updateActivityStatus = asyncHandler(async (req, res) => {
 });
 
 const getActivitySummary = asyncHandler(async (req, res) => {
-  const cadetId = req.user.role === 'cadet' ? req.user._id : req.query.cadet;
+  const cadetId = req.user.role === 'cadet' ? req.user._id : req.query.cadet || req.user._id;
+  
   if (!cadetId) {
     return res.status(400).json({ message: 'cadet parameter required' });
   }
 
+  const cadetObjectId = typeof cadetId === 'string' ? new mongoose.Types.ObjectId(cadetId) : cadetId;
+
   const summary = await Activity.aggregate([
-    { $match: { cadet: cadetId } },
+    { $match: { cadet: cadetObjectId } },
     {
       $group: {
         _id: '$type',
